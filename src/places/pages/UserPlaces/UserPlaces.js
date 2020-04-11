@@ -1,8 +1,8 @@
 import React from 'react';
 import {useParams} from 'react-router-dom';
 
-import img from '../../assets/img.jpg'
-import PlaceList from '../component/PlaceList';
+import img from '../../../assets/img.jpg'
+import PlaceList from '../../component/PlaceList/PlaceList';
 
 const DUMMY_PLACES = [{
     id: 'p1',

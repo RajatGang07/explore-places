@@ -1,12 +1,12 @@
 import React from 'react';
-import UsersList from '../component/UsersList';
-import img from "../../assets/img.jpg";
+import img from "../../../assets/img.jpg";
+import UserList from '../../component/UserList/UsersList';
 
 const  Users = () => {
 
     const USERS = [{id: "u1", name: "Rajat", image: img,places: 3 }];
   return (
-   <UsersList items={USERS} />
+   <UserList items={USERS} />
   );
 }
 
