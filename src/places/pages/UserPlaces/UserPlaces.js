@@ -1,39 +1,39 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {useParams} from 'react-router-dom';
 
 import img from '../../../assets/img.jpg'
 import PlaceList from '../../component/PlaceList/PlaceList';
+import { useHttpClient } from '../../../shared/components/hooks/httpHook';
+import ErrorModal from '../../../shared/components/UIElements/Error/ErrorModal';
+import LoadingSpinner from '../../../shared/components/UIElements/Loader/LoadingSpinner';
 
-const DUMMY_PLACES = [{
-    id: 'p1',
-    title: 'Klassik Landmark',
-    description: 'One of the most famous scrappers in the world',
-    imageUrl: img,
-    address: 'Cosmos 13A Klassik Landmark Sarjapur Road',
-    location: {
-        lat: 12.8960006,
-        lng: 77.6755386
-    },
-    creator:'u1'
-},
-{
-    id: 'p2',
-    title: 'Klassik Landmark',
-    description: 'One of the most famous scrappers in the world',
-    imageUrl: img,
-    address: 'Cosmos 13A Klassik Landmark Sarjapur Road',
-    location: {
-        lat: 12.8960006,
-        lng: 77.6755386
-    },
-    creator: 'u2'
-}]
 
 const UserPlaces = (props) => {
+    const { isLoading, error, sendRequest, clearError } = useHttpClient();
+    const [loadedPlaces, setLoadedPlace] = useState(null);
+
    const userId =  useParams().userId;
-   const loadedPlaces = DUMMY_PLACES.filter(place => place.creator === userId)
+
+    useEffect(() => {
+        const fetchPlaces = async () => {
+          try {
+            const responseData = await sendRequest(`http://localhost:5000/api/places/user/${userId}`);
+            setLoadedPlace(responseData.userWithPlaces)
+          } catch (err) { }
+        }
+        fetchPlaces();
+      }, [sendRequest, userId])
+
     return (
-        <PlaceList item={loadedPlaces} />
+        <React.Fragment>
+        <ErrorModal error={error} onClear={clearError} />
+      {
+        isLoading && <div className="center">
+          <LoadingSpinner asOverlay />
+        </div>
+      }
+        {!isLoading && loadedPlaces && <PlaceList item={loadedPlaces} />}
+        </React.Fragment>
     );
 }
 
