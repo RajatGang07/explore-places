@@ -1,40 +1,49 @@
 import React, {useState, useEffect} from 'react';
 import {useParams} from 'react-router-dom';
 
-import img from '../../../assets/img.jpg'
 import PlaceList from '../../component/PlaceList/PlaceList';
 import { useHttpClient } from '../../../shared/components/hooks/httpHook';
 import ErrorModal from '../../../shared/components/UIElements/Error/ErrorModal';
 import LoadingSpinner from '../../../shared/components/UIElements/Loader/LoadingSpinner';
 
 
-const UserPlaces = (props) => {
-    const { isLoading, error, sendRequest, clearError } = useHttpClient();
-    const [loadedPlaces, setLoadedPlace] = useState(null);
+const UserPlaces = () => {
+  const [loadedPlaces, setLoadedPlaces] = useState();
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
-   const userId =  useParams().userId;
+  const userId = useParams().userId;
 
-    useEffect(() => {
-        const fetchPlaces = async () => {
-          try {
-            const responseData = await sendRequest(`http://localhost:5000/api/places/user/${userId}`);
-            setLoadedPlace(responseData.userWithPlaces)
-          } catch (err) { }
-        }
-        fetchPlaces();
-      }, [sendRequest, userId])
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        const responseData = await sendRequest(
+          `http://localhost:5000/api/places/user/${userId}`
+        );
+        setLoadedPlaces(responseData.places);
+      } catch (err) {}
+    };
+    fetchPlaces();
+  }, [sendRequest, userId]);
 
-    return (
-        <React.Fragment>
-        <ErrorModal error={error} onClear={clearError} />
-      {
-        isLoading && <div className="center">
-          <LoadingSpinner asOverlay />
-        </div>
-      }
-        {!isLoading && loadedPlaces && <PlaceList item={loadedPlaces} />}
-        </React.Fragment>
+  const placeDeletedHandler = deletedPlaceId => {
+    setLoadedPlaces(prevPlaces =>
+      prevPlaces.filter(place => place.id !== deletedPlaceId)
     );
-}
+  };
+
+  return (
+    <React.Fragment>
+      <ErrorModal error={error} onClear={clearError} />
+      {isLoading && (
+        <div className="center">
+          <LoadingSpinner />
+        </div>
+      )}
+      {!isLoading && loadedPlaces && (
+        <PlaceList items={loadedPlaces} onDeletePlace={placeDeletedHandler} />
+      )}
+    </React.Fragment>
+  );
+};
 
 export default UserPlaces;
